@@ -215,6 +215,92 @@ create table t_0401(
 
 set SERVEROUTPUT ON;
 
+create table baboya(
+    memno   number,
+    memname varchar2(20),
+    adr     varchar2(20),
+    tel     varchar2(15),
+    hdat    date
+);
+
+-- 1
+DECLARE
+    pnum     number;
+    pnam     varchar2(20);
+    padr     varchar2(20);
+    ptel     varchar2(15);
+BEGIN
+    insert into baboya values(127, 'babo', 'zip', '010-0314-1577',SYSDATE);
+    select memno, memname, adr, tel 
+    into pnum, pnam, padr, ptel from baboya where memno = 127;
+    DBMS_OUTPUT.PUT_line(pnum);
+    DBMS_OUTPUT.PUT_line(pnam);
+    DBMS_OUTPUT.PUT_line(padr);
+    DBMS_OUTPUT.PUT_line(ptel);
+END;
+
+select * from baboya;
+delete FROM baboya
+where adr is not null;
+
+-- 2번
+create type alpub as varray(26) of varchar2(1byte) ;
+
+-- 3번
+create or replace procedure ano(
+    pnum     baboya.memno%type;
+    pnam     baboya.memname%type;
+    padr     baboya.adr%type;
+    ptel     baboya.tel%type;
+)
+is
+    cursor babonya is select * from baboya;
+    rsada baboya%rowtype;
+BEGIN
+    insert into baboya values(pnum, pnam, padr, padr, SYSDATE);
+    open babonya;
+    loop
+        fetch babonya into rsdata;
+        exit when babonya%notfound;
+        DBMS_OUTPUT.PUT_line(rsdata.pnum || ' ' || rsdata.pnam || ' ' || rsdata.padr || ' ' || rsdata.ptel);
+    end loop;
+    close babonya;
+END;
+
+
+create or replace procedure ano(
+    pnum     baboya.memno%type,
+    pnam     baboya.memname%type,
+    padr     baboya.adr%type,
+    ptel     baboya.tel%type
+)
+is
+    cursor babonya is select * from baboya;
+BEGIN
+    insert into baboya values(pnum, pnam, padr, ptel, SYSDATE);
+    for rsdata in babonya loop
+--        DBMS_OUTPUT.PUT_line(rsdata.pnum || ' ' || rsdata.pnam || ' ' || rsdata.padr || ' ' || rsdata.ptel);
+            DBMS_OUTPUT.PUT_line(pnum || ' ' || pnam || ' ' || padr || ' ' || ptel);
+    end loop;
+END;
+
+execute ano(120, 'asd', 'qaz', '1245');
+
+create or replace procedure ani(
+    pnum     baboya.memno%type,
+    pnam     baboya.memname%type,
+    padr     baboya.adr%type,
+    ptel     baboya.tel%type
+)
+is
+BEGIN
+    insert into baboya values(pnum, pnam, padr, padr, SYSDATE);
+    for rsdata in (select * from baboya) loop
+        DBMS_OUTPUT.PUT_line(rsdata.pnum || ' ' || rsdata.pnam || ' ' || rsdata.padr || ' ' || rsdata.ptel);
+    end loop;
+END;
+
+execute ano(120, 'asd', 'qaz', '1245');
 -----------------------
 
 purge recyclebin;           -- drop 후 쓰레기값 제거
